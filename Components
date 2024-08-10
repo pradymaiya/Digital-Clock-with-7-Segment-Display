@@ -1,0 +1,6 @@
+Arduino: Any Arduino board will work for this project.
+7-Segment Display: A common cathode or common anode 7-segment display (4 digits preferred).
+Resistors: Typically 220Ω or 330Ω resistors to limit the current to the LEDs in the 7-segment display.
+Push Buttons: Two or more push buttons to set the hours and minutes.
+Breadboard and Jumper Wires: For making the connections between components.
+Real-Time Clock (RTC) Module
