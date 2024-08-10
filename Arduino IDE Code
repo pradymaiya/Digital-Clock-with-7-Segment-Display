@@ -1,0 +1,95 @@
+#include <SevSeg.h> // For controlling the 7-segment display (optional)
+#include <Wire.h>   // For I2C communication (used with RTC module)
+#include <RTClib.h> // For the RTC module (optional)
+const int segmentPins[7] = {2, 3, 4, 5, 6, 7, 8};
+const int digitPins[4] = {9, 10, 11, 12};
+const int buttonHour = 13;
+const int buttonMinute = 14;
+
+int hours = 0;
+int minutes = 0;
+unsigned long previousMillis = 0;
+const long interval = 60000;
+
+const byte digitCodes[10] = {
+  0b11111100,
+  0b01100000,
+  0b11011010,
+  0b11110010,
+  0b01100110,
+  0b10110110,
+  0b10111110,
+  0b11100000,
+  0b11111110,
+  0b11110110
+};
+
+void setup() {
+  for (int i = 0; i < 7; i++) {
+    pinMode(segmentPins[i], OUTPUT);
+    digitalWrite(segmentPins[i], LOW);
+  }
+
+  for (int i = 0; i < 4; i++) {
+    pinMode(digitPins[i], OUTPUT);
+    digitalWrite(digitPins[i], HIGH);
+  }
+
+  pinMode(buttonHour, INPUT_PULLUP);
+  pinMode(buttonMinute, INPUT_PULLUP);
+}
+
+void loop() {
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    minutes++;
+    if (minutes >= 60) {
+      minutes = 0;
+      hours++;
+      if (hours >= 24) {
+        hours = 0;
+      }
+    }
+  }
+
+  if (digitalRead(buttonHour) == LOW) {
+    delay(200);
+    hours++;
+    if (hours >= 24) {
+      hours = 0;
+    }
+  }
+
+  if (digitalRead(buttonMinute) == LOW) {
+    delay(200);
+    minutes++;
+    if (minutes >= 60) {
+      minutes = 0;
+    }
+  }
+
+  displayTime();
+}
+
+void displayTime() {
+  int displayDigits[4] = {
+    hours / 10,
+    hours % 10,
+    minutes / 10,
+    minutes % 10
+  };
+
+  for (int digit = 0; digit < 4; digit++) {
+    digitalWrite(digitPins[digit], LOW);
+
+    for (int segment = 0; segment < 7; segment++) {
+      boolean isSegmentOn = bitRead(digitCodes[displayDigits[digit]], 7 - segment);
+      digitalWrite(segmentPins[segment], isSegmentOn);
+    }
+
+    delay(5);
+
+    digitalWrite(digitPins[digit], HIGH);
+  }
+}
